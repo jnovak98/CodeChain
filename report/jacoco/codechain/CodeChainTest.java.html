@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CodeChainTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">codechain</a> &gt; <a href="index.source.html" class="el_package">codechain</a> &gt; <span class="el_source">CodeChainTest.java</span></div><h1>CodeChainTest.java</h1><pre class="source lang-java linenums">package codechain;
+
+import static org.junit.Assert.*;
+import java.util.function.Function;
+
+import org.junit.Test;
+
+<span class="fc" id="L8">public class CodeChainTest {</span>
+
+	@Test
+	public void test() {
+<span class="fc" id="L12">		CodeChain&lt;ValueNode&lt;String,ValueNode&gt;,ValueNode&lt;Boolean,ValueNode&gt;&gt; chain = </span>
+				new CodeChain(new CodeBlock&lt;ValueNode&lt;String,ValueNode&gt;, 
+				ValueNode&lt;Boolean,ValueNode&gt;,CodeBlock,ValueNode&lt;Boolean,ValueNode&gt;&gt;(
+						i-&gt;{
+<span class="fc" id="L16">							System.out.println(&quot;Input String says : \&quot;&quot; + i.getValue() + &quot;\&quot;&quot;);</span>
+<span class="fc bfc" id="L17" title="All 2 branches covered.">							return new ValueNode&lt;Boolean,ValueNode&gt;(i.getValue().equals(&quot;return true&quot;)? true: false,null);</span>
+						}, null));
+
+<span class="fc" id="L20">		CodeChain&lt;ValueNode&lt;String,ValueNode&gt;,ValueNode&lt;Integer,ValueNode&gt;&gt; added = chain.add(new CodeBlock&lt;ValueNode&lt;Boolean,ValueNode&gt;, </span>
+				ValueNode&lt;Integer,ValueNode&gt;,CodeBlock,ValueNode&lt;Integer,ValueNode&gt;&gt;(
+						i-&gt;{
+<span class="fc" id="L23">							System.out.println(&quot;Last Function returned: &quot;+ i.getValue());</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">							return new ValueNode&lt;Integer,ValueNode&gt;(i.getValue() ? 1 : 0);</span>
+						}, null)); 
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">		assertTrue(added.run(new ValueNode&lt;String,ValueNode&gt;(&quot;return true&quot;)).getValue().intValue()==1);</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">		assertTrue(added.run(new ValueNode&lt;String,ValueNode&gt;(&quot;return false&quot;)).getValue().intValue()==0);</span>
+		
+<span class="fc" id="L29">	}</span>
+	
+	@Test
+	public void testMultipleIO(){
+		Function
+			&lt;ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;, 
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;&gt; 
+<span class="fc" id="L36">		separateSplitString = </span>
+				i -&gt; {
+<span class="fc" id="L38">					String noDelimiters = i.getValue().replace(i.next().getValue(), &quot;&quot;);</span>
+<span class="fc" id="L39">					StringBuilder s = new StringBuilder();</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">					for(int iter = 0; iter &lt; i.getValue().length() - noDelimiters.length();iter++){</span>
+<span class="fc" id="L41">						s.append(i.next().getValue());</span>
+					}
+<span class="fc" id="L43">					String removedDelimiters = s.toString();</span>
+<span class="fc" id="L44">					ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt; returnValues = </span>
+							new ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;(noDelimiters,
+									new ValueNode&lt;String,ValueNode&gt;(removedDelimiters));
+<span class="fc" id="L47">					return returnValues;</span>
+				};
+				
+		CodeBlock&lt;
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;, 
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;,
+			CodeBlock,
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;&gt;
+<span class="fc" id="L55">		block = new CodeBlock&lt;</span>
+				ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;, 
+				ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;,
+				CodeBlock,
+				ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;&gt;
+			(separateSplitString);
+		
+		CodeChain&lt;				
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;, 
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;&gt;
+<span class="fc" id="L65">		chain = new CodeChain&lt;</span>
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;, 
+			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;&gt;
+		(block);
+		
+<span class="fc" id="L70">		ValueNode&lt;String,ValueNode&gt; inputString = new ValueNode&lt;String,ValueNode&gt;(&quot;this.is.a.test.string&quot;);</span>
+<span class="fc" id="L71">		ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt; stringAndDelimiter = </span>
+<span class="fc" id="L72">				inputString.addToEnd(new ValueNode&lt;String,ValueNode&gt;(&quot;.&quot;));	</span>
+		
+<span class="fc" id="L74">		assertTrue(chain.run(stringAndDelimiter).getValue().equals(&quot;thisisateststring&quot;));</span>
+<span class="fc" id="L75">		assertTrue(chain.run(stringAndDelimiter).next().getValue().equals(&quot;....&quot;));</span>
+<span class="fc" id="L76">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
