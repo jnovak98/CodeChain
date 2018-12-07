@@ -2,48 +2,71 @@
 
 import java.util.function.Function;
 
-public class CodeBlock&lt;InputType,OutputType,NextBlockType extends CodeBlock,
-	ChainOutput&gt; {
+public class CodeBlock&lt;InputType,OutputType,NextBlockType extends CodeBlock, ChainOutput&gt; {
 	
 	private final Function&lt;InputType,OutputType&gt; code;
 	private NextBlockType next;
 	private String name;
 	
+	/**
+	 * Returns a new unnamed CodeBlock holding the inputted Function
+	 * @param code a Function matching the CodeBlock in input and output
+	 */
 	public CodeBlock(Function&lt;InputType, OutputType&gt; code) {
-<span class="fc" id="L13">		this(null,code,null);</span>
-<span class="fc" id="L14">	}</span>
+<span class="fc" id="L16">		this(null,code,null);</span>
+<span class="fc" id="L17">	}</span>
 	
+	/**
+	 * Returns a new named CodeBlock holding the inputted Function]
+	 * @param name the name a function can be called by
+	 * @param code a Function matching the CodeBlock in input and output
+	 */
 	public CodeBlock(String name, Function&lt;InputType, OutputType&gt; code) {
-<span class="fc" id="L17">		this(name,code,null);</span>
-<span class="fc" id="L18">	}</span>
+<span class="fc" id="L25">		this(name,code,null);</span>
+<span class="fc" id="L26">	}</span>
 	
-<span class="fc" id="L20">	private CodeBlock(String name, Function&lt;InputType, OutputType&gt; code, NextBlockType next) {</span>
-<span class="fc" id="L21">		this.name = name;</span>
-<span class="fc" id="L22">		this.code = code;</span>
-<span class="fc" id="L23">		this.next = next;</span>
-<span class="fc" id="L24">	}</span>
-
+<span class="fc" id="L28">	private CodeBlock(String name, Function&lt;InputType, OutputType&gt; code, NextBlockType next) {</span>
+<span class="fc" id="L29">		this.name = name;</span>
+<span class="fc" id="L30">		this.code = code;</span>
+<span class="fc" id="L31">		this.next = next;</span>
+<span class="fc" id="L32">	}</span>
+	
+	/**
+	 * Runs the Function stored in this CodeBlock on input
+	 * @param input the input to the CodeBlock's Function
+	 * @return the Function's output for the given input
+	 */
 	public ChainOutput run(InputType input){
-<span class="fc bfc" id="L27" title="All 2 branches covered.">		if(next == null)</span>
-<span class="fc" id="L28">			return (ChainOutput) code.apply(input);</span>
-		else
-<span class="fc" id="L30">			return (ChainOutput) next.run(code.apply(input));</span>
-	}
-	
-	public ChainOutput run(String name, InputType input){
-<span class="fc bfc" id="L34" title="All 2 branches covered.">		if(name.equals(this.name))</span>
-<span class="fc" id="L35">			return run(input);</span>
-		else
-<span class="fc" id="L37">			throw new IllegalArgumentException(&quot;Cannot call function &quot; + name + &quot; on CodeBlock &quot; + this.name);</span>
-	}
-	
-	&lt;X,Y,Z extends CodeBlock,O&gt; CodeBlock addToEnd(CodeBlock&lt;X,Y,Z,O&gt; block){
+		//recursively applies each function in the chain
 <span class="fc bfc" id="L41" title="All 2 branches covered.">		if(next == null)</span>
-<span class="fc" id="L42">			return new CodeBlock&lt;InputType,OutputType,CodeBlock&lt;X,Y,Z,O&gt;,O&gt;(name,code,block);		</span>
+<span class="fc" id="L42">			return (ChainOutput) code.apply(input);</span>
 		else
-<span class="fc" id="L44">			return new CodeBlock&lt;InputType,OutputType,CodeBlock,O&gt;(name, code,next.addToEnd(block));</span>
-		
-			
+<span class="fc" id="L44">			return (ChainOutput) next.run(code.apply(input));</span>
+	}
+	
+	/**
+	 * Runs the Function stored in this CodeBlock on input, iff the inputted name matches that stored in the CodeBlock
+	 * @param name the name of the Function to be called, set by the constructor
+	 * @param input the input to the CodeBlock's 
+	 * @return the Function's output for the given input
+	 */
+	public ChainOutput run(String name, InputType input){
+<span class="fc bfc" id="L54" title="All 2 branches covered.">		if(name.equals(this.name))</span>
+<span class="fc" id="L55">			return run(input);</span>
+		else
+<span class="fc" id="L57">			throw new IllegalArgumentException(&quot;Cannot call function &quot; + name + &quot; on CodeBlock &quot; + this.name);</span>
+	}
+	
+	&lt;BlockOutputType,BlockNextType extends CodeBlock,NewChainOutput&gt; CodeBlock addToEnd(
+			CodeBlock&lt;ChainOutput,BlockOutputType,BlockNextType,NewChainOutput&gt; block){
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		if(next == null)</span>
+<span class="fc" id="L63">			return new CodeBlock&lt;InputType,OutputType,CodeBlock&lt;ChainOutput,BlockOutputType,BlockNextType,NewChainOutput&gt;,NewChainOutput&gt;(name,code,block);		</span>
+		else
+<span class="fc" id="L65">			return new CodeBlock&lt;InputType,OutputType,CodeBlock,NewChainOutput&gt;(name, code,next.addToEnd(block));	</span>
+	}
+	
+	boolean hasNext() {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		return (next != null);</span>
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

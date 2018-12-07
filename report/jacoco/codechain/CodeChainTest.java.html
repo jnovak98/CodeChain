@@ -10,7 +10,7 @@ import org.junit.Test;
 	@Test
 	public void test() {
 <span class="fc" id="L12">		CodeChain&lt;ValueNode&lt;String,ValueNode&gt;,ValueNode&lt;Boolean,ValueNode&gt;&gt; chain = </span>
-				new CodeChain(new CodeBlock&lt;ValueNode&lt;String,ValueNode&gt;, 
+<span class="fc" id="L13">				CodeChain.build(new CodeBlock&lt;ValueNode&lt;String,ValueNode&gt;, </span>
 				ValueNode&lt;Boolean,ValueNode&gt;,CodeBlock,ValueNode&lt;Boolean,ValueNode&gt;&gt;(
 						i-&gt;{
 <span class="fc bfc" id="L16" title="All 2 branches covered.">							return new ValueNode&lt;Boolean,ValueNode&gt;(i.getValue().equals(&quot;return true&quot;)? true: false,null);</span>
@@ -60,17 +60,41 @@ import org.junit.Test;
 		CodeChain&lt;				
 			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;, 
 			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;&gt;
-<span class="fc" id="L63">		chain = new CodeChain&lt;</span>
-			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;, 
-			ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt;&gt;
-		(block);
+<span class="fc" id="L63">		chain = CodeChain.build(block);</span>
 		
-<span class="fc" id="L68">		ValueNode&lt;String,ValueNode&gt; inputString = new ValueNode&lt;String,ValueNode&gt;(&quot;this.is.a.test.string&quot;);</span>
-<span class="fc" id="L69">		ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt; stringAndDelimiter = </span>
-<span class="fc" id="L70">				inputString.addToEnd(new ValueNode&lt;String,ValueNode&gt;(&quot;.&quot;));	</span>
+<span class="fc" id="L65">		ValueNode&lt;String,ValueNode&gt; inputString = new ValueNode&lt;String,ValueNode&gt;(&quot;this.is.a.test.string&quot;);</span>
+<span class="fc" id="L66">		ValueNode&lt;String,ValueNode&lt;String,ValueNode&gt;&gt; stringAndDelimiter = </span>
+<span class="fc" id="L67">				inputString.addToEnd(new ValueNode&lt;String,ValueNode&gt;(&quot;.&quot;));	</span>
 		
-<span class="fc" id="L72">		assertTrue(chain.run(stringAndDelimiter).getValue().equals(&quot;thisisateststring&quot;));</span>
-<span class="fc" id="L73">		assertTrue(chain.run(stringAndDelimiter).next().getValue().equals(&quot;....&quot;));</span>
-<span class="fc" id="L74">	}</span>
+<span class="fc" id="L69">		assertTrue(chain.run(stringAndDelimiter).getValue().equals(&quot;thisisateststring&quot;));</span>
+<span class="fc" id="L70">		assertTrue(chain.run(stringAndDelimiter).next().getValue().equals(&quot;....&quot;));</span>
+<span class="fc" id="L71">	}</span>
+	
+	@Test
+	public void testCodeChainNoValueNodes() {
+<span class="fc" id="L75">		CodeBlock&lt;String, String, CodeBlock, String&gt; stringRepeater = new CodeBlock&lt;String, String, CodeBlock, String&gt;(</span>
+				i-&gt;{
+<span class="fc" id="L77">					String repeated = i + &quot;&quot; + i;</span>
+<span class="fc" id="L78">					return repeated;</span>
+				});
+<span class="fc" id="L80">		CodeChain&lt;String, String&gt; chain = CodeChain.build();</span>
+<span class="fc" id="L81">		CodeChain&lt;String, String&gt; repeatOnce = chain.add(stringRepeater);</span>
+<span class="fc" id="L82">		CodeChain&lt;String, String&gt; repeatTwice = repeatOnce.add(stringRepeater);</span>
+<span class="fc" id="L83">		assertTrue(repeatTwice.run(&quot;a&quot;).equals(&quot;aaaa&quot;));</span>
+<span class="fc" id="L84">	}</span>
+	
+	@Test
+	public void testAddChainToEnd(){
+<span class="fc" id="L88">		CodeBlock&lt;String, String, CodeBlock, String&gt; stringRepeater = new CodeBlock&lt;String, String, CodeBlock, String&gt;(</span>
+				i-&gt;{
+<span class="fc" id="L90">					String repeated = i + &quot;&quot; + i;</span>
+<span class="fc" id="L91">					return repeated;</span>
+				});
+<span class="fc" id="L93">		CodeChain&lt;String, String&gt; repeatOnce = CodeChain.build(stringRepeater);</span>
+<span class="fc" id="L94">		CodeChain&lt;String, String&gt; repeatTwice = repeatOnce.add(repeatOnce);</span>
+<span class="fc" id="L95">		assertTrue(repeatTwice.run(&quot;a&quot;).equals(&quot;aaaa&quot;));</span>
+<span class="fc" id="L96">		CodeChain&lt;String, String&gt; repeatFourTimes = repeatTwice.add(repeatTwice);</span>
+<span class="fc" id="L97">		assertTrue(repeatFourTimes.run(&quot;a&quot;).equals(&quot;aaaaaaaaaaaaaaaa&quot;));</span>
+<span class="fc" id="L98">	}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
