@@ -2,42 +2,54 @@ package codechain;
 
 import java.util.function.Function;
 
-public class CodeBlock<InputType extends ValueNode,OutputType extends ValueNode,NextBlockType extends CodeBlock,
-	ChainOutput extends ValueNode> {
+public class CodeBlock<InputType,OutputType,NextBlockType extends CodeBlock, ChainOutput> {
 	
 	private final Function<InputType,OutputType> code;
 	private NextBlockType next;
 	private String name;
 	
+	/**
+	 * Returns a new unnamed CodeBlock holding the inputted Function
+	 * @param code a Function matching the CodeBlock in input and output
+	 */
 	public CodeBlock(Function<InputType, OutputType> code) {
 		this(null,code,null);
 	}
 	
-	public CodeBlock(Function<InputType, OutputType> code, NextBlockType next) {
-		this(null,code,next);
+	/**
+	 * Returns a new named CodeBlock holding the inputted Function]
+	 * @param name the name a function can be called by
+	 * @param code a Function matching the CodeBlock in input and output
+	 */
+	public CodeBlock(String name, Function<InputType, OutputType> code) {
+		this(name,code,null);
 	}
 	
-	public CodeBlock(String name, Function<InputType, OutputType> code, NextBlockType next) {
+	private CodeBlock(String name, Function<InputType, OutputType> code, NextBlockType next) {
 		this.name = name;
 		this.code = code;
 		this.next = next;
 	}
 	
-	public NextBlockType next() {
-		return next;
-	}
-	
-	public boolean hasNext(){
-		return (next!=null);
-	}
-
+	/**
+	 * Runs the Function stored in this CodeBlock on input
+	 * @param input the input to the CodeBlock's Function
+	 * @return the Function's output for the given input
+	 */
 	public ChainOutput run(InputType input){
+		//recursively applies each function in the chain
 		if(next == null)
 			return (ChainOutput) code.apply(input);
 		else
 			return (ChainOutput) next.run(code.apply(input));
 	}
 	
+	/**
+	 * Runs the Function stored in this CodeBlock on input, iff the inputted name matches that stored in the CodeBlock
+	 * @param name the name of the Function to be called, set by the constructor
+	 * @param input the input to the CodeBlock's 
+	 * @return the Function's output for the given input
+	 */
 	public ChainOutput run(String name, InputType input){
 		if(name.equals(this.name))
 			return run(input);
@@ -45,10 +57,14 @@ public class CodeBlock<InputType extends ValueNode,OutputType extends ValueNode,
 			throw new IllegalArgumentException("Cannot call function " + name + " on CodeBlock " + this.name);
 	}
 	
-	public <X extends ValueNode,Y extends ValueNode,Z extends CodeBlock,O extends ValueNode> CodeBlock addToEnd(CodeBlock<X,Y,Z,O> block){
-		if(hasNext())
-			return new CodeBlock<InputType,OutputType,CodeBlock,O>(name, code,next.addToEnd(block));
+	<BlockOutputType,BlockNextType extends CodeBlock,NewChainOutput> CodeBlock addToEnd(CodeBlock<ChainOutput,BlockOutputType,BlockNextType,NewChainOutput> block){
+		if(next == null)
+			return new CodeBlock<InputType,OutputType,CodeBlock<ChainOutput,BlockOutputType,BlockNextType,NewChainOutput>,NewChainOutput>(name,code,block);		
 		else
-			return new CodeBlock<InputType,OutputType,CodeBlock<X,Y,Z,O>,O>(name,code,block);		
+			return new CodeBlock<InputType,OutputType,CodeBlock,NewChainOutput>(name, code,next.addToEnd(block));	
+	}
+	
+	boolean hasNext() {
+		return (next != null);
 	}
 }

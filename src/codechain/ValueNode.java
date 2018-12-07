@@ -1,38 +1,53 @@
 package codechain;
 
-public class ValueNode <T,U extends ValueNode> {
-	private final T value;
-	private U next;
+public final class ValueNode <NodeType,NextNodeType extends ValueNode> {
+	private final NodeType value;
+	private NextNodeType next;
 	
-	public ValueNode(T value){
+	/**
+	 * Returns a new single ValueNode storing value
+	 * @param value the value to be stored
+	 */
+	public ValueNode(NodeType value){
 		this.value = value;
 		this.next = null;
 	}
 	
-	public ValueNode(T value, U next) {
+	/**
+	 * Returns a new ValueNode storing value and holding other ValueNode next
+	 * @param value the value to be stored
+	 * @param next the next nested ValueNode 
+	 */
+	public ValueNode(NodeType value, NextNodeType next) {
 		this.value = value;
 		this.next = next;
 	}
-
-	public U next() {
+	
+	/**
+	 * @return the next nested ValueNode
+	 */
+	public NextNodeType next() {
 		return next;
 	}
 	
+	/**
+	 * @return a boolean representing if there is another ValueNode nested in the current ValueNode
+	 */
 	public boolean hasNext(){
 		return (next != null);
 	}
 
 	public <X,Y extends ValueNode> ValueNode addToEnd(ValueNode<X,Y> node){
 		if(hasNext())
-			return new ValueNode<T,ValueNode>(value,next.addToEnd(node));
+			return new ValueNode<NodeType,ValueNode>(value,next.addToEnd(node));
 		else
-			return new ValueNode<T,ValueNode<X,Y>>(value,node);			
+			return new ValueNode<NodeType,ValueNode<X,Y>>(value,node);			
 	}
 	
 	/**
-	 * @return the value
+	 * @return the value stored in ValueNode
 	 */
-	public final T getValue() {
+	public final NodeType getValue() {
 		return value;
 	}
 

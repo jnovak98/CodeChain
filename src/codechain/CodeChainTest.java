@@ -10,19 +10,17 @@ public class CodeChainTest {
 	@Test
 	public void test() {
 		CodeChain<ValueNode<String,ValueNode>,ValueNode<Boolean,ValueNode>> chain = 
-				new CodeChain(new CodeBlock<ValueNode<String,ValueNode>, 
+				CodeChain.build(new CodeBlock<ValueNode<String,ValueNode>, 
 				ValueNode<Boolean,ValueNode>,CodeBlock,ValueNode<Boolean,ValueNode>>(
 						i->{
-							System.out.println("Input String says : \"" + i.getValue() + "\"");
 							return new ValueNode<Boolean,ValueNode>(i.getValue().equals("return true")? true: false,null);
-						}, null));
+						}));
 
 		CodeChain<ValueNode<String,ValueNode>,ValueNode<Integer,ValueNode>> added = chain.add(new CodeBlock<ValueNode<Boolean,ValueNode>, 
 				ValueNode<Integer,ValueNode>,CodeBlock,ValueNode<Integer,ValueNode>>(
 						i->{
-							System.out.println("Last Function returned: "+ i.getValue());
 							return new ValueNode<Integer,ValueNode>(i.getValue() ? 1 : 0);
-						}, null)); 
+						})); 
 		assertTrue(added.run(new ValueNode<String,ValueNode>("return true")).getValue().intValue()==1);
 		assertTrue(added.run(new ValueNode<String,ValueNode>("return false")).getValue().intValue()==0);
 		
@@ -62,10 +60,7 @@ public class CodeChainTest {
 		CodeChain<				
 			ValueNode<String,ValueNode<String,ValueNode>>, 
 			ValueNode<String,ValueNode<String,ValueNode>>>
-		chain = new CodeChain<
-			ValueNode<String,ValueNode<String,ValueNode>>, 
-			ValueNode<String,ValueNode<String,ValueNode>>>
-		(block);
+		chain = CodeChain.build(block);
 		
 		ValueNode<String,ValueNode> inputString = new ValueNode<String,ValueNode>("this.is.a.test.string");
 		ValueNode<String,ValueNode<String,ValueNode>> stringAndDelimiter = 
@@ -73,5 +68,32 @@ public class CodeChainTest {
 		
 		assertTrue(chain.run(stringAndDelimiter).getValue().equals("thisisateststring"));
 		assertTrue(chain.run(stringAndDelimiter).next().getValue().equals("...."));
+	}
+	
+	@Test
+	public void testCodeChainNoValueNodes() {
+		CodeBlock<String, String, CodeBlock, String> stringRepeater = new CodeBlock<String, String, CodeBlock, String>(
+				i->{
+					String repeated = i + "" + i;
+					return repeated;
+				});
+		CodeChain<String, String> chain = CodeChain.build();
+		CodeChain<String, String> repeatOnce = chain.add(stringRepeater);
+		CodeChain<String, String> repeatTwice = repeatOnce.add(stringRepeater);
+		assertTrue(repeatTwice.run("a").equals("aaaa"));
+	}
+	
+	@Test
+	public void testAddChainToEnd(){
+		CodeBlock<String, String, CodeBlock, String> stringRepeater = new CodeBlock<String, String, CodeBlock, String>(
+				i->{
+					String repeated = i + "" + i;
+					return repeated;
+				});
+		CodeChain<String, String> repeatOnce = CodeChain.build(stringRepeater);
+		CodeChain<String, String> repeatTwice = repeatOnce.add(repeatOnce);
+		assertTrue(repeatTwice.run("a").equals("aaaa"));
+		CodeChain<String, String> repeatFourTimes = repeatTwice.add(repeatTwice);
+		assertTrue(repeatFourTimes.run("a").equals("aaaaaaaaaaaaaaaa"));
 	}
 }

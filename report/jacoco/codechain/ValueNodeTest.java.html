@@ -7,19 +7,39 @@ import org.junit.Test;
 <span class="fc" id="L7">public class ValueNodeTest {</span>
 
 	@Test
-	public void test() {
+	public void testConstructorAndGetValue() {
 <span class="fc" id="L11">		ValueNode&lt;String, ValueNode&lt;Integer, ValueNode&gt;&gt; values = </span>
 				new ValueNode&lt;String, ValueNode&lt;Integer, ValueNode&gt;&gt;(&quot;test&quot;, 
 <span class="fc" id="L13">						new ValueNode&lt;Integer,ValueNode&gt;(1,null));</span>
 <span class="fc" id="L14">		String first = values.getValue();</span>
 <span class="fc" id="L15">		Integer second = values.next().getValue();</span>
-<span class="fc" id="L16">		ValueNode&lt;String, ValueNode&gt; addingTest= new ValueNode(&quot;test2&quot;,null);</span>
-<span class="fc" id="L17">		ValueNode&lt;String, ValueNode&lt;Integer, ValueNode&gt;&gt; added =</span>
-<span class="fc" id="L18">				addingTest.addToEnd(new ValueNode&lt;Integer,ValueNode&gt;(1,null));</span>
-<span class="fc" id="L19">		String first2 = added.getValue();</span>
-<span class="fc" id="L20">		Integer second2 = added.next().getValue();</span>
-		
-<span class="fc" id="L22">	}</span>
+<span class="fc" id="L16">		assertTrue(first.equals(&quot;test&quot;));</span>
+<span class="pc bpc" id="L17" title="1 of 2 branches missed.">		assertTrue(second.intValue()==1);</span>
+<span class="fc" id="L18">	}</span>
+	
+	@Test
+	public void testAddToEnd(){
+<span class="fc" id="L22">		ValueNode&lt;String, ValueNode&gt; addingTest= new ValueNode(&quot;test&quot;,null);</span>
+<span class="fc" id="L23">		ValueNode&lt;String, ValueNode&lt;Integer, ValueNode&gt;&gt; added =</span>
+<span class="fc" id="L24">				addingTest.addToEnd(new ValueNode&lt;Integer,ValueNode&gt;(1,null));</span>
+<span class="fc" id="L25">		ValueNode&lt;String,ValueNode&lt;Integer,ValueNode&lt;Boolean,ValueNode&gt;&gt;&gt; addedBool = </span>
+<span class="fc" id="L26">				added.addToEnd(new ValueNode&lt;Boolean,ValueNode&gt;(true,null));</span>
+<span class="fc" id="L27">		String first = addedBool.getValue();</span>
+<span class="fc" id="L28">		Integer second = addedBool.next().getValue();</span>
+<span class="fc" id="L29">		Boolean third = addedBool.next().next().getValue();</span>
+<span class="fc" id="L30">		assertTrue(first.equals(&quot;test&quot;));</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">		assertTrue(second.intValue()==1);</span>
+<span class="fc" id="L32">		assertTrue(third.booleanValue());</span>
+<span class="fc" id="L33">	}</span>
+	
+	@Test
+	public void testHasNext(){
+<span class="fc" id="L37">		ValueNode&lt;String, ValueNode&lt;Integer, ValueNode&gt;&gt; values = </span>
+				new ValueNode&lt;String, ValueNode&lt;Integer, ValueNode&gt;&gt;(&quot;test&quot;, 
+<span class="fc" id="L39">						new ValueNode&lt;Integer,ValueNode&gt;(1,null));</span>
+<span class="fc" id="L40">		assertTrue(values.hasNext());</span>
+<span class="fc" id="L41">		assertFalse(values.next().hasNext());</span>
+<span class="fc" id="L42">	}</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

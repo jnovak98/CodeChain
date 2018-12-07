@@ -2,8 +2,8 @@
 
 import java.util.function.Function;
 
-public class CodeBlock&lt;InputType extends ValueNode,OutputType extends ValueNode,NextBlockType extends CodeBlock,
-	ChainOutput extends ValueNode&gt; {
+public class CodeBlock&lt;InputType,OutputType,NextBlockType extends CodeBlock,
+	ChainOutput&gt; {
 	
 	private final Function&lt;InputType,OutputType&gt; code;
 	private NextBlockType next;
@@ -13,43 +13,37 @@ public class CodeBlock&lt;InputType extends ValueNode,OutputType extends ValueNo
 <span class="fc" id="L13">		this(null,code,null);</span>
 <span class="fc" id="L14">	}</span>
 	
-	public CodeBlock(Function&lt;InputType, OutputType&gt; code, NextBlockType next) {
-<span class="fc" id="L17">		this(null,code,next);</span>
+	public CodeBlock(String name, Function&lt;InputType, OutputType&gt; code) {
+<span class="fc" id="L17">		this(name,code,null);</span>
 <span class="fc" id="L18">	}</span>
 	
-<span class="fc" id="L20">	public CodeBlock(String name, Function&lt;InputType, OutputType&gt; code, NextBlockType next) {</span>
+<span class="fc" id="L20">	private CodeBlock(String name, Function&lt;InputType, OutputType&gt; code, NextBlockType next) {</span>
 <span class="fc" id="L21">		this.name = name;</span>
 <span class="fc" id="L22">		this.code = code;</span>
 <span class="fc" id="L23">		this.next = next;</span>
 <span class="fc" id="L24">	}</span>
-	
-	public NextBlockType next() {
-<span class="nc" id="L27">		return next;</span>
-	}
-	
-	public boolean hasNext(){
-<span class="pc bpc" id="L31" title="1 of 2 branches missed.">		return (next!=null);</span>
-	}
 
 	public ChainOutput run(InputType input){
-<span class="fc bfc" id="L35" title="All 2 branches covered.">		if(next == null)</span>
-<span class="fc" id="L36">			return (ChainOutput) code.apply(input);</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">		if(next == null)</span>
+<span class="fc" id="L28">			return (ChainOutput) code.apply(input);</span>
 		else
-<span class="fc" id="L38">			return (ChainOutput) next.run(code.apply(input));</span>
+<span class="fc" id="L30">			return (ChainOutput) next.run(code.apply(input));</span>
 	}
 	
 	public ChainOutput run(String name, InputType input){
-<span class="nc bnc" id="L42" title="All 2 branches missed.">		if(name.equals(this.name))</span>
-<span class="nc" id="L43">			return run(input);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if(name.equals(this.name))</span>
+<span class="fc" id="L35">			return run(input);</span>
 		else
-<span class="nc" id="L45">			throw new IllegalArgumentException(&quot;Cannot call function &quot; + name + &quot; on CodeBlock &quot; + this.name);</span>
+<span class="fc" id="L37">			throw new IllegalArgumentException(&quot;Cannot call function &quot; + name + &quot; on CodeBlock &quot; + this.name);</span>
 	}
 	
-	public &lt;X extends ValueNode,Y extends ValueNode,Z extends CodeBlock,O extends ValueNode&gt; CodeBlock addToEnd(CodeBlock&lt;X,Y,Z,O&gt; block){
-<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		if(hasNext())</span>
-<span class="nc" id="L50">			return new CodeBlock&lt;InputType,OutputType,CodeBlock,O&gt;(name, code,next.addToEnd(block));</span>
+	&lt;X,Y,Z extends CodeBlock,O&gt; CodeBlock addToEnd(CodeBlock&lt;X,Y,Z,O&gt; block){
+<span class="fc bfc" id="L41" title="All 2 branches covered.">		if(next == null)</span>
+<span class="fc" id="L42">			return new CodeBlock&lt;InputType,OutputType,CodeBlock&lt;X,Y,Z,O&gt;,O&gt;(name,code,block);		</span>
 		else
-<span class="fc" id="L52">			return new CodeBlock&lt;InputType,OutputType,CodeBlock&lt;X,Y,Z,O&gt;,O&gt;(name,code,block);		</span>
+<span class="fc" id="L44">			return new CodeBlock&lt;InputType,OutputType,CodeBlock,O&gt;(name, code,next.addToEnd(block));</span>
+		
+			
 	}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
