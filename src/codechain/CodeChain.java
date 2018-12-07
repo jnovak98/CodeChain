@@ -1,7 +1,7 @@
 package codechain;
 
 public final class CodeChain<InputType,OutputType> {
-	private CodeBlock<InputType,?,CodeBlock,OutputType> head;
+	CodeBlock<InputType,?,CodeBlock,OutputType> head;
 	
 	private CodeChain(CodeBlock head){
 		this.head = head;

@@ -51,5 +51,4 @@ public class CodeBlockTest {
 			assertTrue(e.getMessage().equals("Cannot call function NotFunctionName on CodeBlock FunctionName"));
 		}
 	}
-
 }

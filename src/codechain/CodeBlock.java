@@ -57,7 +57,8 @@ public class CodeBlock<InputType,OutputType,NextBlockType extends CodeBlock, Cha
 			throw new IllegalArgumentException("Cannot call function " + name + " on CodeBlock " + this.name);
 	}
 	
-	<BlockOutputType,BlockNextType extends CodeBlock,NewChainOutput> CodeBlock addToEnd(CodeBlock<ChainOutput,BlockOutputType,BlockNextType,NewChainOutput> block){
+	<BlockOutputType,BlockNextType extends CodeBlock,NewChainOutput> CodeBlock addToEnd(
+			CodeBlock<ChainOutput,BlockOutputType,BlockNextType,NewChainOutput> block){
 		if(next == null)
 			return new CodeBlock<InputType,OutputType,CodeBlock<ChainOutput,BlockOutputType,BlockNextType,NewChainOutput>,NewChainOutput>(name,code,block);		
 		else
