@@ -5,8 +5,6 @@ import java.util.function.Function;
 
 import org.junit.Test;
 
-import com.sun.xml.internal.ws.api.pipe.NextAction;
-
 public class CodeChainTest {
 
 	@Test
